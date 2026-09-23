@@ -389,16 +389,16 @@ function addItemRow(){const box=document.getElementById("items"),n=box.children.
 document.addEventListener("input",e=>{if(e.target.closest("#items"))calcForm()});
 function calcForm(){let sum=0;document.querySelectorAll(".itemrow").forEach(r=>{const q=+r.querySelector(".iqty").value||0,p=+r.querySelector(".iprice").value||0,d=+r.querySelector(".idiscount").value||0;const sub=q*p*(1-d/100);sum+=sub;const se=r.querySelector(".item-subtotal");if(se)se.textContent=money(sub)});const e=document.getElementById("formTotal");if(e)e.textContent=money(sum)}
 function collectItems(){return [...document.querySelectorAll(".itemrow")].map(r=>({name:r.querySelector(".iname").value.trim(),spec:r.querySelector(".ispec").value.trim(),qty:+r.querySelector(".iqty").value||0,unit:r.querySelector(".iunit").value.trim()||"Pcs",price:+r.querySelector(".iprice").value||0,discount:+r.querySelector(".idiscount").value||0})).filter(i=>i.name&&i.qty>0)}
-function nextInvoice(){const d=new Date().toISOString().slice(0,10).replaceAll("-","");const n=data.tx.filter(t=>t.date===new Date().toISOString().slice(0,10)).length+1;return `INV-${d}-${String(n).padStart(3,"0")}`}
-async function saveTrx(){
-  if(!SUPABASE_ENABLED)return toast("Isi Supabase config dulu.");
-  const items=collectItems();if(!items.length)return toast("Minimal 1 item harus diisi.");
-  const obj={id:state.editId,client:document.getElementById("fclient").value,date:document.getElementById("fdate").value,invoice:document.getElementById("finvoice").value,note:document.getElementById("fnote").value.trim(),account:document.getElementById("faccount").value,items};
-  try{
-    const result=await saveToSupabaseTransaction(obj);
-    state.modal=null;state.editId=null;await loadFromApi();
-    toast(result.edited?"✓ Transaksi diperbarui di Supabase":"✓ Piutang masuk Supabase");
-  }catch(e){console.error(e);toast("Gagal simpan piutang: "+e.message)}
+function nextInvoice(){
+  const date=new Date().toISOString().slice(0,10);
+  const d=date.replaceAll("-","");
+  const prefix=`INV-${d}-`;
+  const nums=data.tx
+    .filter(t=>t.date===date&&String(t.invoice||"").startsWith(prefix))
+    .map(t=>parseInt(String(t.invoice).slice(prefix.length),10))
+    .filter(n=>Number.isFinite(n));
+  const next=nums.length?Math.max(...nums)+1:1;
+  return `${prefix}${String(next).padStart(3,"0")}`;
 }
 function openPayment(id){state.trxId=id;state.modal="payment";render()}
 function paymentModal(){const t=txById(state.trxId);return `<div class="modal open"><div class="modalbox"><div class="modalhead"><div><b>Input Pembayaran</b><div class="muted">${esc(t.invoice)} · Sisa ${money(balanceTx(t))}</div></div><button class="close" onclick="state.modal='trx';render()">×</button></div><div class="modalbody"><div class="formgrid">
