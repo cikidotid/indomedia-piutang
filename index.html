@@ -18,7 +18,7 @@
 
 @media(max-width:900px){.mobile-brand{display:flex!important}.topbar{gap:10px}.topbar h1{font-size:18px}.dashboard-recent-table{display:none}.dashboard-recent-cards{display:grid!important;gap:10px}.dash-tx-card{border:1px solid var(--line);border-radius:12px;padding:13px;background:#fff}.dash-tx-top{display:flex;justify-content:space-between;gap:10px}.dash-tx-invoice{font-weight:800;color:var(--blue);font-size:12px}.dash-tx-client{font-size:12px;font-weight:700;margin-top:4px}.dash-tx-date{font-size:10px;color:var(--muted);margin-top:3px}.dash-tx-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;border-top:1px solid #f0f2f7;padding-top:10px}.dash-tx-meta span{display:block;color:var(--muted);font-size:10px}.dash-tx-meta b{display:block;margin-top:3px;font-size:12px}.invoice-logo{width:68px;height:68px}}
 </style>
-<script type="text/javascript" nonce="53fc1b9fcbb4414d96b04ab6cb8" src="//local.adguard.org?ts=1790140305759&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_0000000073b88207b72cd88518bc8555%26fn%3Dindex%25284%2529.html%26cd%3Dattachment%26ts%3D497268%26p%3Dfs%26cid%3D1%26sig%3D1ea53b5c743bd97148fa56e3555f363377afdc6c864c9d7b31910a34e2abd702%26v%3D0&amp;app=brave.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-dnt"></script><script type="text/javascript" nonce="53fc1b9fcbb4414d96b04ab6cb8" src="//local.adguard.org?ts=1790140305759&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
+<script type="text/javascript" nonce="53fc1b9fcbb4414d96b04ab6cb8" src="//local.adguard.org?ts=1790140305759&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_000000002b8c82089844fe0b5bd8690f%26fn%3Dindex%25285%2529.html%26cd%3Dattachment%26ts%3D497268%26p%3Dfs%26cid%3D1%26sig%3Ddb724d9f563ab111916213600cb3473e57b4cbeac41fb0d09c6985402ebeb169%26v%3D0&amp;app=brave.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-dnt"></script><script type="text/javascript" nonce="53fc1b9fcbb4414d96b04ab6cb8" src="//local.adguard.org?ts=1790140305759&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
 <body>
 <div id="root"></div>
 <div id="toast" class="toast"></div>
@@ -366,16 +366,16 @@ function trxModal(){
  <div class="actions no-print" style="margin-top:15px"><button class="btn ghost" onclick="printInvoice('${t.id}')">🖨 Print / PDF</button>${balanceTx(t)>0?`<button class="btn primary" onclick="openPayment('${t.id}')">+ Pembayaran</button>`:""}</div>`}
  </div></div></div>`;
 }
-function openTrxModal(clientId="",editId=""){state.modal="newtrx";state.clientId=clientId||state.clientId;state.editId=editId;render()}
+async function openTrxModal(clientId="",editId=""){state.modal="newtrx";state.clientId=clientId||state.clientId;state.editId=editId;state.newInvoice=editId?"":await getNextInvoice(new Date().toISOString().slice(0,10));render()}
 function trxFormModal(){
  const editing=state.editId?txById(state.editId):null;
  const cId=editing?.client||state.clientId||data.clients[0]?.id;
  const items=editing?editing.items:[{name:"",spec:"",qty:1,unit:"Pcs",price:0,discount:0}];
  return `<div class="modal open"><div class="modalbox"><div class="modalhead"><div><b>${editing?"Edit Piutang":"Buat Piutang"}</b><div class="muted">Rincian barang / jasa</div></div><button class="close" onclick="state.modal=null;render()">×</button></div><div class="modalbody">
  <div class="formgrid">
- <div class="field"><label>Tanggal</label><input id="fdate" type="date" value="${editing?.date||new Date().toISOString().slice(0,10)}"></div>
+ <div class="field"><label>Tanggal</label><input id="fdate" type="date" value="${editing?.date||new Date().toISOString().slice(0,10)}" onchange="refreshInvoiceNumber()"></div>
  <div class="field"><label>Client</label><select id="fclient">${data.clients.filter(c=>c.active).map(c=>`<option value="${c.id}" ${c.id===cId?"selected":""}>${esc(c.name)}</option>`).join("")}</select></div>
- <div class="field"><label>Nomor Transaksi</label><input id="finvoice" value="${editing?.invoice||nextInvoice()}" readonly></div>
+ <div class="field"><label>Nomor Transaksi</label><input id="finvoice" value="${editing?.invoice||state.newInvoice||"Menyiapkan..."}" readonly></div>
  <div class="field"><label>Rekening di Invoice</label><select id="faccount">${data.accounts.filter(a=>a.status==="Aktif").map(a=>`<option value="${a.id}" ${(editing?.account||data.accounts[0]?.id)===a.id?"selected":""}>${esc(a.bank)} - ${esc(a.number)} (a.n. ${esc(a.owner)})</option>`).join("")}</select></div>
  <div class="field full"><label>Keterangan</label><input id="fnote" value="${esc(editing?.note||"")}"></div>
  </div>
@@ -389,16 +389,24 @@ function addItemRow(){const box=document.getElementById("items"),n=box.children.
 document.addEventListener("input",e=>{if(e.target.closest("#items"))calcForm()});
 function calcForm(){let sum=0;document.querySelectorAll(".itemrow").forEach(r=>{const q=+r.querySelector(".iqty").value||0,p=+r.querySelector(".iprice").value||0,d=+r.querySelector(".idiscount").value||0;const sub=q*p*(1-d/100);sum+=sub;const se=r.querySelector(".item-subtotal");if(se)se.textContent=money(sub)});const e=document.getElementById("formTotal");if(e)e.textContent=money(sum)}
 function collectItems(){return [...document.querySelectorAll(".itemrow")].map(r=>({name:r.querySelector(".iname").value.trim(),spec:r.querySelector(".ispec").value.trim(),qty:+r.querySelector(".iqty").value||0,unit:r.querySelector(".iunit").value.trim()||"Pcs",price:+r.querySelector(".iprice").value||0,discount:+r.querySelector(".idiscount").value||0})).filter(i=>i.name&&i.qty>0)}
-function nextInvoice(){const date=new Date().toISOString().slice(0,10),d=date.replaceAll("-",""),prefix=`INV-${d}-`,nums=data.tx.filter(t=>t.date===date&&String(t.invoice||"").startsWith(prefix)).map(t=>parseInt(String(t.invoice).slice(prefix.length),10)).filter(n=>Number.isFinite(n)),next=nums.length?Math.max(...nums)+1:1;return `${prefix}${String(next).padStart(3,"0")}`}
+async function getNextInvoice(date){const d=String(date||new Date().toISOString().slice(0,10)).slice(0,10),ds=d.replaceAll("-",""),prefix=`INV-${ds}-`;const rows=await sbq(sb.from("transactions").select("no_invoice").eq("tanggal",d),"Nomor transaksi");const valid=rows.map(r=>String(r.no_invoice||"")).filter(v=>v.startsWith(prefix)).map(v=>parseInt(v.slice(prefix.length),10)).filter(Number.isFinite);const next=valid.length?Math.max(...valid)+1:1;return `${prefix}${String(next).padStart(3,"0")}`}
+async function refreshInvoiceNumber(){const date=document.getElementById("fdate")?.value;if(!date||state.editId)return;try{const invoice=await getNextInvoice(date);state.newInvoice=invoice;const el=document.getElementById("finvoice");if(el)el.value=invoice}catch(e){console.error(e);toast("Gagal membuat nomor transaksi: "+e.message)}}
 async function saveTrx(){
   if(!SUPABASE_ENABLED)return toast("Isi Supabase config dulu.");
   const items=collectItems();if(!items.length)return toast("Minimal 1 item harus diisi.");
-  const obj={id:state.editId,client:document.getElementById("fclient").value,date:document.getElementById("fdate").value,invoice:document.getElementById("finvoice").value,note:document.getElementById("fnote").value.trim(),account:document.getElementById("faccount").value,items};
+  const date=document.getElementById("fdate").value;
+  let invoice=state.editId?document.getElementById("finvoice").value:await getNextInvoice(date);
+  const obj={id:state.editId,client:document.getElementById("fclient").value,date,invoice,note:document.getElementById("fnote").value.trim(),account:document.getElementById("faccount").value,items};
+  const invEl=document.getElementById("finvoice");if(invEl)invEl.value=invoice;
   try{
     const result=await saveToSupabaseTransaction(obj);
-    state.modal=null;state.editId=null;await loadFromApi();
+    state.modal=null;state.editId=null;state.newInvoice="";await loadFromApi();
     toast(result.edited?"✓ Transaksi diperbarui di Supabase":"✓ Piutang masuk Supabase");
-  }catch(e){console.error(e);toast("Gagal simpan piutang: "+e.message)}
+  }catch(e){
+    if(!state.editId&&String(e.message||"").includes("no_invoice_key")){
+      try{obj.invoice=await getNextInvoice(date);if(invEl)invEl.value=obj.invoice;const result=await saveToSupabaseTransaction(obj);state.modal=null;state.editId=null;state.newInvoice="";await loadFromApi();toast("✓ Piutang masuk Supabase");return}catch(e2){e=e2}}
+    console.error(e);toast("Gagal simpan piutang: "+e.message)
+  }
 }
 function openPayment(id){state.trxId=id;state.modal="payment";render()}
 function paymentModal(){const t=txById(state.trxId);return `<div class="modal open"><div class="modalbox"><div class="modalhead"><div><b>Input Pembayaran</b><div class="muted">${esc(t.invoice)} · Sisa ${money(balanceTx(t))}</div></div><button class="close" onclick="state.modal='trx';render()">×</button></div><div class="modalbody"><div class="formgrid">
