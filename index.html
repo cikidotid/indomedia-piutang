@@ -579,17 +579,77 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;line-height:1
   .dashboard-main-grid>.dashboard-card:first-child .chart-stage .chart-svg{width:100%!important;height:270px!important;max-width:none!important;}
 }
 </style>
-<style id="v28-bottom-frames-balanced-final">
-/* V28 final: bottom dashboard frames balanced to equal height */
+<style id="final-desktop-chart-balance-v26">
+/* V26: desktop chart spacing + balanced main frame. Keep V28 data/UI intact. */
 @media (min-width:901px){
-  .dashboard-bottom-grid{align-items:stretch!important;}
-  .dashboard-bottom-grid>.dashboard-card{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;}
-  .dashboard-bottom-grid>.dashboard-card .dashboard-card-head{flex:0 0 auto!important;}
-  .dashboard-bottom-grid>.dashboard-card .rank-list,
-  .dashboard-bottom-grid>.dashboard-card .recent-wrap{flex:1 1 auto!important;}
+  .dashboard-main-grid{
+    align-items:stretch!important;
+    grid-template-columns:minmax(0,1.7fr) minmax(360px,.9fr)!important;
+    gap:16px!important;
+  }
+  .dashboard-main-grid>.dashboard-card:first-child{
+    min-height:0!important;
+    height:auto!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  .dashboard-main-grid>.dashboard-card:first-child .chart-wrap{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    padding:4px 18px 12px!important;
+    overflow:visible!important;
+  }
+  .dashboard-main-grid>.dashboard-card:first-child .chart-stage{
+    flex:1 1 auto!important;
+    min-height:310px!important;
+    position:relative!important;
+    overflow:visible!important;
+  }
+  .dashboard-main-grid>.dashboard-card:first-child .chart-stage .chart-svg{
+    width:100%!important;
+    height:310px!important;
+    min-height:310px!important;
+    max-height:none!important;
+  }
+  /* Give the y-axis its own lane. The bars no longer sit on top of the numbers. */
+  .dashboard-main-grid>.dashboard-card:first-child .chart-yaxis{
+    left:0!important;
+    width:100px!important;
+  }
+  .dashboard-main-grid>.dashboard-card:first-child .chart-ylabel{
+    width:100px!important;
+    padding-right:12px!important;
+    font-size:10px!important;
+  }
+  .dashboard-main-grid>.dashboard-card:first-child .chart-legend{
+    flex:0 0 auto!important;
+    padding-top:7px!important;
+    padding-bottom:1px!important;
+  }
+}
+@media (min-width:1200px){
+  .dashboard-main-grid{
+    grid-template-columns:minmax(0,1.72fr) minmax(400px,.92fr)!important;
+  }
+  .dashboard-main-grid>.dashboard-card:first-child .chart-stage .chart-svg{
+    height:330px!important;
+    min-height:330px!important;
+  }
 }
 </style>
-<script type="text/javascript" nonce="ec3e40fd0a15409ca0f76e4f509" src="//local.adguard.org?ts=1790550672510&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_0000000035ec8207beea783c2352eab2%26fn%3Dindex%25286%2529.html%26cd%3Dattachment%26ts%3D497376%26p%3Dfs%26cid%3D1%26sig%3D238550b3cdff2e72757267c8b85d23a681fe7652ed1b537587e65d7b09da5479%26v%3D0&amp;app=brave.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-dnt"></script><script type="text/javascript" nonce="ec3e40fd0a15409ca0f76e4f509" src="//local.adguard.org?ts=1790550672510&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
+
+<style id="client-edit-actions-fix">
+.client-actions-head,.client-actions{white-space:nowrap}
+.client-mobile-actions{display:flex;gap:6px;align-items:center;margin-left:8px}
+.client-mobile-actions .btn{padding:5px 9px;font-size:10px;line-height:1.1}
+@media(max-width:650px){
+  .client-mobile-card .mobile-data-top{align-items:center}
+  .client-mobile-actions{flex:0 0 auto;margin-left:6px}
+}
+</style>
+<script type="text/javascript" nonce="ec3e40fd0a15409ca0f76e4f509" src="//local.adguard.org?ts=1790550672510&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_0000000071248207ac42831d619b7039%26fn%3Dindex-v28-FINAL-LOCKED.html%26cd%3Dattachment%26ts%3D497376%26p%3Dfs%26cid%3D1%26sig%3D6c8f017ee4fdbb96c14d62f3084e9cf4f352077544676d1904f39c2771601430%26v%3D0&amp;app=brave.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-dnt"></script><script type="text/javascript" nonce="ec3e40fd0a15409ca0f76e4f509" src="//local.adguard.org?ts=1790550672510&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
 <body>
 <div id="root"></div>
 <div id="toast" class="toast"></div>
@@ -734,11 +794,9 @@ async function viewProof(path){
   }catch(e){if(popup)popup.close();toast("Gagal membuka bukti: "+e.message)}
 }
 
-async function saveClientToSupabase(){
+async function insertClientToSupabase(){
   const name=document.getElementById("cn").value.trim(); if(!name)return toast("Nama client wajib diisi.");
-  const payload={nama_client:name,pic:document.getElementById("cp").value.trim(),no_hp:document.getElementById("ct").value.trim(),alamat:document.getElementById("ca").value.trim()};
-  if(state.clientEditId){const {error}=await sb.from("clients").update(payload).eq("client_id",state.clientEditId);if(error)throw error;return "edit";}
-  const id="CL-"+Date.now().toString().slice(-6);const {error}=await sb.from("clients").insert({client_id:id,...payload,status:"Aktif"});if(error)throw error;return "add";
+  const id="CL-"+Date.now().toString().slice(-6); const {error}=await sb.from("clients").insert({client_id:id,nama_client:name,pic:document.getElementById("cp").value.trim(),no_hp:document.getElementById("ct").value.trim(),alamat:document.getElementById("ca").value.trim(),status:"Aktif"}); if(error)throw error;
 }
 const demo = {
   users:[
@@ -782,7 +840,7 @@ demo.payments = demo.payments.filter(p=>demo.tx.some(t=>t.id===p.trx));
 let data = {users:[],accounts:[],clients:[],tx:[],payments:[],products:[]};
 let session = null;
 let authUser = null;
-let state = {page:"dashboard",clientId:null,trxId:null,modal:null,editId:null,clientEditId:null,detailTab:"detail",dashboardRange:"14"};
+let state = {page:"dashboard",clientId:null,clientEditId:null,trxId:null,modal:null,editId:null,detailTab:"detail",dashboardRange:"14"};
 
 const rupiah = n => new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n||0);
 const fmtDate = s => new Date(s+"T00:00:00").toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"});
@@ -889,10 +947,10 @@ function dashboard(){
  const statuses={lunas:tx.filter(x=>(x.balanceApi??balanceTx(x))<=0).length,sebagian:tx.filter(x=>{const b=x.balanceApi??balanceTx(x),p=x.paidApi??paidTx(x.id);return b>0&&p>0}).length,belum:tx.filter(x=>(x.paidApi??paidTx(x.id))<=0).length};
  const totalStatus=statuses.lunas+statuses.sebagian+statuses.belum||1;
  const statusPct=k=>Math.round(statuses[k]/totalStatus*100);
- const mobileChart=window.innerWidth<=650;const measuredDesktopWidth=Math.max(1,Number(state.dashboardChartWidth)||900);const chartW=mobileChart?420:measuredDesktopWidth,chartH=mobileChart?320:430,left=mobileChart?105:110,right=mobileChart?10:24,top=mobileChart?26:30,bottom=mobileChart?62:66,plotW=Math.max(1,chartW-left-right),plotH=chartH-top-bottom;
+ const mobileChart=window.innerWidth<=650;const measuredDesktopWidth=Math.max(1,Number(state.dashboardChartWidth)||900);const chartW=mobileChart?420:measuredDesktopWidth,chartH=mobileChart?320:430,left=mobileChart?92:140,right=mobileChart?10:24,top=mobileChart?26:30,bottom=mobileChart?62:66,plotW=Math.max(1,chartW-left-right),plotH=chartH-top-bottom;
  const x=i=>left+(plotW/(Math.max(chartData.length-1,1)))*i;
  const y=v=>top+plotH-(v/maxVal)*plotH;
- const bars=chartData.map((m,i)=>{const bw=mobileChart?Math.max(14,Math.min(20,plotW/Math.max(chartData.length*3.2,1))):30;const gap=mobileChart?7:9;const h1=plotH-(y(m.total)-top),h2=plotH-(y(m.paid)-top);return `<rect class="chart-bar" x="${x(i)-bw-gap}" y="${y(m.total)}" width="${bw}" height="${h1}" rx="5"/><rect class="chart-bar-soft" x="${x(i)+gap}" y="${y(m.paid)}" width="${bw}" height="${h2}" rx="5"/>`;}).join("");
+ const bars=chartData.map((m,i)=>{const bw=mobileChart?Math.max(14,Math.min(20,plotW/Math.max(chartData.length*3.2,1))):26;const gap=mobileChart?7:8;const h1=plotH-(y(m.total)-top),h2=plotH-(y(m.paid)-top);return `<rect class="chart-bar" x="${x(i)-bw-gap}" y="${y(m.total)}" width="${bw}" height="${h1}" rx="5"/><rect class="chart-bar-soft" x="${x(i)+gap}" y="${y(m.paid)}" width="${bw}" height="${h2}" rx="5"/>`;}).join("");
  const line=chartData.map((m,i)=>`${i?'L':'M'} ${x(i)} ${y(m.balance)}`).join(' ');
  const dots=chartData.map((m,i)=>`<circle class="chart-dot" cx="${x(i)}" cy="${y(m.balance)}" r="4"/>`).join('');
  const axisVals=[1,.75,.5,.25,0];const grid=axisVals.map(v=>{const yy=top+plotH-v*plotH;return `<line class="chart-grid" x1="${left}" x2="${chartW-right}" y1="${yy}" y2="${yy}"/>`}).join('');const axisLabels=axisVals.map(v=>`<span class="chart-ylabel" style="top:${((top+plotH-v*plotH)/chartH*100).toFixed(3)}%">${moneyCompact(maxVal*v)}</span>`).join('');
@@ -946,10 +1004,20 @@ function clientsPage(){
 function clientRow(c){
  const tx=data.tx.filter(t=>t.client===c.id),tot=tx.reduce((a,t)=>a+totalTx(t),0),bal=tx.reduce((a,t)=>a+balanceTx(t),0);
  const status=bal?badge(tx.some(t=>paidTx(t.id)>0)?"DIBAYAR SEBAGIAN":"BELUM BAYAR"):"<span class=\"badge green\">LUNAS</span>";
- const action=session.role==="admin"?`<td class="right" onclick="event.stopPropagation()"><button class="btn ghost" style="padding:5px 9px;font-size:11px" onclick="openClientModal('${c.id}')">Edit</button><button class="btn ghost" style="padding:5px 9px;font-size:11px;color:#d14a4a;margin-left:5px" onclick="deleteClient('${c.id}')">Hapus</button></td>`:"";
+ const action=session.role==="admin"?`<td class="right client-actions" onclick="event.stopPropagation()"><button class="btn ghost" style="padding:5px 9px;font-size:11px" onclick="openClientModal('${c.id}')">Edit</button><button class="btn ghost" style="padding:5px 9px;font-size:11px;color:#d14a4a;margin-left:5px" onclick="deleteClient('${c.id}')">Hapus</button></td>`:"";
  return `<tr onclick="openClient('${c.id}')" style="cursor:pointer"><td><b>${esc(c.name)}</b><div class="muted">${esc(c.id)}</div></td><td>${esc(c.pic)}</td><td>${esc(c.phone)}</td><td class="right">${money(tot)}</td><td class="right"><b>${money(bal)}</b></td><td>${status}</td>${action}</tr>`;
 }
-function clientRows(arr){if(!arr.length)return `<div class="empty">Client tidak ditemukan.</div>`;const head=session.role==="admin"?"<th class=\"right\">Aksi</th>":"";return `<table class="table"><thead><tr><th>Client</th><th>PIC</th><th>Kontak</th><th class="right">Total</th><th class="right">Sisa</th><th>Status</th>${head}</tr></thead><tbody>${arr.map(clientRow).join("")}</tbody></table>`}
+function clientRows(arr){
+ if(!arr.length)return `<div class="empty">Client tidak ditemukan.</div>`;
+ const rows=arr.map(clientRow).join("");
+ const head=session.role==="admin"?`<th class="right client-actions-head">Aksi</th>`:"";
+ const mobile=arr.map(c=>{
+   const tx=data.tx.filter(t=>t.client===c.id),tot=tx.reduce((a,t)=>a+totalTx(t),0),bal=tx.reduce((a,t)=>a+balanceTx(t),0);
+   const actions=session.role==="admin"?`<div class="client-mobile-actions"><button class="btn ghost" onclick="event.stopPropagation();openClientModal('${c.id}')">Edit</button><button class="btn ghost" style="color:#d14a4a" onclick="event.stopPropagation();deleteClient('${c.id}')">Hapus</button></div>`:"";
+   return `<div class="mobile-data-card client-mobile-card" onclick="openClient('${c.id}')"><div class="mobile-data-top"><div class="client-compact-name" title="${esc(c.name)}">${esc(c.name)}</div>${actions}</div><div class="client-compact-grid"><div><span>Total Piutang</span><b>${money(tot)}</b></div><div><span>Sisa Piutang</span><b>${money(bal)}</b></div></div></div>`;
+ }).join("");
+ return `<div class="table-mobile-hidden"><table class="table"><thead><tr><th>Client</th><th>PIC</th><th>Kontak</th><th class="right">Total</th><th class="right">Sisa</th><th>Status</th>${head}</tr></thead><tbody>${rows}</tbody></table></div><div class="mobile-list">${mobile}</div>`;
+}
 function filterClients(){const q=document.getElementById("clientSearch").value.toLowerCase();document.getElementById("clientTable").innerHTML=clientRows(data.clients.filter(c=>(c.name+" "+c.pic+" "+c.phone).toLowerCase().includes(q)))}
 
 function clientDetail(id){
@@ -989,10 +1057,10 @@ function openClient(id){state.clientId=id;state.page="clients";render()}
 function go(p){state.page=p;state.clientId=null;state.trxId=null;state.modal=null;render()}
 async function logout(){if(sb){try{await sb.auth.signOut()}catch(e){console.error(e)}}authUser=null;session=null;state.page="dashboard";state.modal=null;render()}
 function renderLogin(){document.getElementById("root").innerHTML=`<div class="login"><div class="loginbox"><div class="loginbrand"><div class="brandmark"><img src="assets/logo.png" alt="INDOMEDIA"></div><h1>INDOMEDIA</h1><p>PIUTANG</p></div><div class="field"><label>Email</label><input id="lu" type="email" placeholder="admin@email.com" autocomplete="username"></div><div class="field"><label>Password</label><input id="lp" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()"></div><button class="btn primary" style="width:100%;margin-top:6px" onclick="login()">Masuk</button><div id="loginerr" class="auth-error"></div><div class="hint">Login menggunakan <b>Supabase Auth</b>. Akun harus dibuat di Authentication terlebih dahulu.</div></div></div>`}
-async function login(){if(!SUPABASE_ENABLED)return toast("Supabase belum dikonfigurasi");const email=document.getElementById("lu").value.trim(),password=document.getElementById("lp").value;if(!email||!password)return showLoginError("Email dan password wajib diisi.");const btn=document.querySelector('.loginbox .btn.primary');if(btn)btn.disabled=true;try{const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;authUser=data.user;await loadAuthProfile();if(!session)throw new Error("Akun berhasil login, tetapi belum terhubung ke data User. Hubungkan auth_user_id di tabel users.");state.page="dashboard";render();await loadFromApi();}catch(e){console.error(e);showLoginError(e.message||"Login gagal.")}finally{if(btn)btn.disabled=false}}
+async function login(){if(!SUPABASE_ENABLED)return toast("Supabase belum dikonfigurasi");const email=document.getElementById("lu").value.trim(),password=document.getElementById("lp").value;if(!email||!password)return showLoginError("Email dan password wajib diisi.");const btn=document.querySelector('.loginbox .btn.primary');if(btn)btn.disabled=true;try{const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;authUser=data.user;await loadAuthProfile();if(!session)throw new Error("Akun berhasil login, tetapi belum terhubung ke data User. Hubungkan auth_user_id di tabel users.");state.page="dashboard";render();/* Biarkan browser menggambar dashboard dulu. Data lengkap menyusul di background. */await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));loadFromApi();}catch(e){console.error(e);showLoginError(e.message||"Login gagal.")}finally{if(btn)btn.disabled=false}}
 function showLoginError(msg){const e=document.getElementById("loginerr");if(e){e.textContent=msg;e.style.display="block"}else toast(msg)}
 async function loadAuthProfile(){session=null;if(!authUser)return;const {data,error}=await sb.from("users").select("user_id,username,nama,role,status").eq("auth_user_id",authUser.id).maybeSingle();if(error)throw error;if(!data)throw new Error("Akun Auth belum dihubungkan ke users.auth_user_id.");if(String(data.status).toLowerCase()!=="aktif")throw new Error("User tidak aktif.");session={id:data.user_id,name:data.nama,role:data.role,username:data.username};}
-async function restoreAuth(){if(!SUPABASE_ENABLED)return;const {data:{session:s}}=await sb.auth.getSession();if(!s){render();return}authUser=s.user;try{await loadAuthProfile();if(session){render();await loadFromApi();return}}catch(e){console.error(e);await sb.auth.signOut()}render()}
+async function restoreAuth(){if(!SUPABASE_ENABLED)return;const {data:{session:s}}=await sb.auth.getSession();if(!s){render();return}authUser=s.user;try{await loadAuthProfile();if(session){render();/* Tampilkan dashboard lebih dulu, lalu ambil data lengkap tanpa menahan paint. */requestAnimationFrame(()=>requestAnimationFrame(()=>loadFromApi()));return}}catch(e){console.error(e);await sb.auth.signOut()}render()}
 
 function modalHtml(){
  if(!state.modal)return "";
@@ -1079,6 +1147,12 @@ function openClientPaymentPicker(clientId){state.clientPaymentClientId=clientId;
 function clientPaymentPicker(){const id=state.clientPaymentClientId, c=clientById(id), tx=data.tx.filter(t=>t.client===id&&balanceTx(t)>0).sort((a,b)=>b.date.localeCompare(a.date));return `<div class="modal open"><div class="modalbox"><div class="modalhead"><div><b>Pilih Nota Pembayaran</b><div class="muted">${esc(c?.name||"")}</div></div><button class="close" onclick="state.modal=null;render()">×</button></div><div class="modalbody">${tx.length?tx.map(t=>`<button class="btn ghost" style="width:100%;text-align:left;margin-bottom:8px;padding:12px" onclick="state.trxId='${t.id}';state.modal='payment';render()"><b>${esc(t.invoice)}</b><span style="float:right">Sisa ${money(balanceTx(t))}</span><div class="muted" style="margin-top:3px">${fmtDate(t.date)} · ${esc(t.note||"")}</div></button>`).join(""):`<div class="empty">Tidak ada nota yang masih memiliki sisa piutang.</div>`}</div></div></div>`}
 function openClientModal(id=""){if(id&&session.role!=="admin")return toast("Edit client hanya untuk Admin.");state.clientEditId=id||null;state.modal="client";render()}
 function clientModal(){const c=state.clientEditId?clientById(state.clientEditId):null,editing=!!c;return `<div class="modal open"><div class="modalbox"><div class="modalhead"><b>${editing?"Edit Client":"Tambah Client"}</b><button class="close" onclick="state.modal=null;state.clientEditId=null;render()">×</button></div><div class="modalbody"><div class="formgrid"><div class="field full"><label>Nama Client</label><input id="cn" placeholder="Nama perusahaan / pelanggan" value="${esc(c?.name||"")}"></div><div class="field"><label>PIC / Kontak</label><input id="cp" value="${esc(c?.pic||"")}"></div><div class="field"><label>No. HP</label><input id="ct" value="${esc(c?.phone||"")}"></div><div class="field full"><label>Alamat</label><input id="ca" value="${esc(c?.address||"")}"></div></div><div class="actions" style="justify-content:flex-end;margin-top:18px"><button class="btn ghost" onclick="state.modal=null;state.clientEditId=null;render()">Batal</button><button class="btn primary" onclick="saveClient()">${editing?"Simpan Perubahan":"Simpan"}</button></div></div></div></div>`}
+async function saveClientToSupabase(){
+ const name=document.getElementById("cn").value.trim(); if(!name)throw new Error("Nama client wajib diisi.");
+ const payload={nama_client:name,pic:document.getElementById("cp").value.trim(),no_hp:document.getElementById("ct").value.trim(),alamat:document.getElementById("ca").value.trim()};
+ if(state.clientEditId){const {error}=await sb.from("clients").update(payload).eq("client_id",state.clientEditId);if(error)throw error;return "edit";}
+ const id="CL-"+Date.now().toString().slice(-6);const {error}=await sb.from("clients").insert({client_id:id,...payload,status:"Aktif"});if(error)throw error;return "add";
+}
 async function saveClient(){if(!SUPABASE_ENABLED)return toast("Isi Supabase config dulu.");const editing=!!state.clientEditId;if(editing&&session.role!=="admin")return toast("Edit client hanya untuk Admin.");try{const mode=await saveClientToSupabase();state.modal=null;state.clientEditId=null;await loadFromApi();toast(mode==="edit"?"✓ Client diperbarui":"✓ Client masuk Supabase");}catch(e){toast("Gagal "+(editing?"mengubah":"menambah")+" client: "+e.message)}}
 async function deleteClient(id){if(session.role!=="admin")return toast("Hapus client hanya untuk Admin.");const c=clientById(id);if(!c)return;const txCount=data.tx.filter(t=>t.client===id).length;if(txCount>0)return toast("Client tidak bisa dihapus karena sudah memiliki "+txCount+" transaksi. Riwayat piutang harus tetap aman.");if(!confirm(`Hapus client "${c.name}"?\nTindakan ini tidak bisa dibatalkan.`))return;try{const {error}=await sb.from("clients").delete().eq("client_id",id);if(error)throw error;await loadFromApi();toast("✓ Client dihapus");}catch(e){toast("Gagal hapus client: "+e.message)}}
 function openAccountModal(){state.modal="account";render()}
@@ -1266,6 +1340,16 @@ function printInvoice(id){
 </style>
 
 
+
+<style id="client-edit-actions-fix">
+.client-actions-head,.client-actions{white-space:nowrap}
+.client-mobile-actions{display:flex;gap:6px;align-items:center;margin-left:8px}
+.client-mobile-actions .btn{padding:5px 9px;font-size:10px;line-height:1.1}
+@media(max-width:650px){
+  .client-mobile-card .mobile-data-top{align-items:center}
+  .client-mobile-actions{flex:0 0 auto;margin-left:6px}
+}
+</style>
 </head><body><div class="page"><div class="invoice"><div class="invoicehead"><div class="invoice-brand"><img class="invoice-logo" src="${location.origin}/assets/logo.png"><div><h2>INDOMEDIA</h2><div class="brand-sub">PERCETAKAN</div></div></div><div class="invoice-meta"><div class="label">INVOICE</div><div class="no">${esc(t.invoice)}</div><div class="date">${fmtDate(t.date)}</div></div></div><div class="invoice-info"><div class="to"><div class="to-label">Kepada</div><b>${esc(c.name)}</b><br><span class="muted">${esc(c.address||"")}</span></div><div class="to" style="text-align:right"><div class="to-label">Status</div><b>${esc(statusTx(t))}</b></div></div><table><thead><tr><th style="width:34px">No</th><th>Barang/Jasa</th><th>Spesifikasi</th><th class="r">Qty</th><th class="r">Harga</th><th class="r">Diskon</th><th class="r">Subtotal</th></tr></thead><tbody>${items}</tbody></table><div class="totals"><div class="line"><span>Total</span><b>${money(totalTx(t))}</b></div><div class="line"><span>Dibayar</span><b>${money(paid)}</b></div><div class="line total"><span>Sisa</span><b>${money(balanceTx(t))}</b></div><div class="line"><span>Dicetak oleh</span><span>${esc(session?.name||"-")}</span></div></div>${acc?`<div class="bank"><div class="bank-title">Pembayaran Transfer</div>${esc(acc.bank)} - ${esc(acc.number)}<br>a.n. ${esc(acc.owner)}</div>`:""}<div class="footer-note"><span>Terima kasih atas kepercayaan Anda.</span><span>INDOMEDIA PIUTANG</span></div></div></div><script>window.onload=()=>window.print()<\/script>
 <style id="desktop-dashboard-final-v12">
 /* v12 desktop composition: reduce dead space and strengthen visual balance */
@@ -1855,31 +1939,50 @@ restoreAuth();
 }
 </style>
 
-
-<style id="v28-balanced-right-frame">
-/* V28 final balance: right-side dashboard stack matches the chart card height on desktop. */
+<style id="final-frame-balance-v27">
+/* V27: true desktop frame balance. Both columns use the same grid-row height. */
 @media (min-width:901px){
-  .dashboard-main-grid{align-items:stretch!important;}
+  .dashboard-main-grid{
+    align-items:stretch!important;
+  }
+  .dashboard-main-grid>.dashboard-card:first-child{
+    height:100%!important;
+    min-height:0!important;
+  }
   .dashboard-side-stack{
     height:100%!important;
+    min-height:0!important;
     display:flex!important;
     flex-direction:column!important;
-    gap:14px!important;
+    gap:12px!important;
   }
   .dashboard-side-stack>.status-piutang-card{
-    flex:0 0 365px!important;
-    min-height:365px!important;
+    flex:1 1 auto!important;
+    min-height:0!important;
+    height:auto!important;
   }
   .dashboard-side-stack>.status-breakdown-card{
-    flex:1 1 auto!important;
+    flex:0 0 auto!important;
+    height:auto!important;
+  }
+
+  /* Bottom row: keep the two white frames at exactly the same height. */
+  .dashboard-bottom-grid{
+    align-items:stretch!important;
+  }
+  .dashboard-bottom-grid>.dashboard-card{
+    height:100%!important;
     min-height:0!important;
   }
 }
 </style>
 
-<style id="v28-mobile-remove-duplicate-xlabels">
-@media(max-width:650px){
-  /* Mobile already renders the X-axis labels inside the SVG. Hide the overlay copy. */
-  .dashboard-main-grid>.dashboard-card:first-child .chart-xlabel{display:none!important;}
+<style id="mobile-clean-v28-final">
+/* Mobile: keep the date labels on the chart. Only remove the legend and the duplicated topbar title. */
+@media (max-width:650px){
+  .topbar > h1{display:none!important;}
+  .dashboard-main-grid>.dashboard-card:first-child .chart-stage .chart-xlabel{display:none!important;}
+  .dashboard-main-grid>.dashboard-card:first-child .chart-stage .chart-svg .chart-axis{display:block!important;}
+  .dashboard-main-grid>.dashboard-card:first-child .chart-legend{display:none!important;}
 }
 </style>
